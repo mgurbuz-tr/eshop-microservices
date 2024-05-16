@@ -15,6 +15,7 @@ public static class DependencyInjection
             .AddSqlServer(configuration.GetConnectionString("Database")!);
         return services;
     }
+    //summary // 
     public static WebApplication UseApiServices(this WebApplication app)
     {
         app.MapCarter();

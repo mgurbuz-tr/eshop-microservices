@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using System.Reflection;
 
 namespace BuildingBlocks.Exceptions.Handler;
 
@@ -15,6 +16,22 @@ public class CustomExceptionHandler
         logger.LogError(
             "Error Message: {exceptionMessage}, Time of occurrence {time}",
             exception.Message, DateTime.UtcNow);
+      
+
+        dynamic ex= exception;
+        if (ex is ValidationException)
+        {
+            context.Response.StatusCode = StatusCodes.Status400BadRequest;
+            await context.Response.WriteAsJsonAsync(new ProblemDetails
+            {
+                Title = "Validation Error",
+                Detail = exception.Message,
+                Status = StatusCodes.Status400BadRequest,
+                Instance = context.Request.Path
+            }, cancellationToken: cancellationToken);
+            return true;
+        }
+
 
         (string Detail, string Title, int StatusCode) details = exception switch
         {
@@ -47,8 +64,11 @@ public class CustomExceptionHandler
                 exception.Message,
                 exception.GetType().Name,
                 context.Response.StatusCode = StatusCodes.Status500InternalServerError
-            )
+            ),
+           
         };
+        
+ 
 
         var problemDetails = new ProblemDetails
         {

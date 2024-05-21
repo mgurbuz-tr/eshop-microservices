@@ -1,4 +1,5 @@
 using Discount.Grpc;
+using BuildingBlocks.Messaging.MassTransit;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -12,6 +13,7 @@ builder.Services.AddMediatR(config =>
     config.AddOpenBehavior(typeof(ValidationBehavior<,>));
     config.AddOpenBehavior(typeof(LoggingBehavior<,>));
 });
+
 
 builder.Services.AddMarten(opts =>
 {
@@ -40,6 +42,7 @@ builder.Services.AddGrpcClient<DiscountProtoService.DiscountProtoServiceClient>(
     return handler;
 });
 
+builder.Services.AddMessageBroker(builder.Configuration, assembly);
 
 builder.Services.AddExceptionHandler<CustomExceptionHandler>();
 
